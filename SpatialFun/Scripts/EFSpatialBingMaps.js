@@ -134,6 +134,8 @@
             };
             //maybe it's create, and we can use current location to give him a heads up
             useCurrentLocation = true;
+        } else {
+            useCurrentLocation = false;
         }
 
         //Create a "Bing(r)(tm)" LatLong object representing our DBGeometry's lat/long
@@ -148,6 +150,10 @@
         var endDragDetails = function(e) {
             position = e.entity.getLocation();
             $input.val(position.latitude.toString() + "," + position.longitude.toString());
+            updateInfoBox();
+        };
+
+        var updateInfoBox = function () {
             defaultInfobox.setOptions({ visible: true });
             defaultInfobox.setLocation(position);
             if (searchManager == null)
@@ -156,8 +162,6 @@
                 reverseGeocodeRequest();
 
         };
-
-
         //create the request toReverse our location to something meaningful
         var reverseGeocodeRequest = function () {
             //some user data 
@@ -208,8 +212,7 @@
                     //on sucess update the marker position
                     geoLocationProvider.getCurrentPosition(({ successCallback: function(object) { updateMarker(object.center); } }));
                 } else {
-                    map.entities.clear();
-                    map.entities.push(pushpin);
+                    updateMarker(position);
 
                 }
                 map.entities.push(defaultInfobox);
@@ -222,9 +225,8 @@
             reverseGeocodeRequest();
         };
 
-
+      
         var updateMarker = function(updateEvent) {
-
             position = new Microsoft.Maps.Location(updateEvent.latitude, updateEvent.longitude);
             pushpin.setLocation(position);
             map.entities.push(pushpin);
@@ -232,7 +234,7 @@
             //  //  if it was manually entered. Pan to center on the new marker location.
             map.setView({ center: position, zoom: defaultZoomlevel });
             $input.val(position.latitude.toString() + "," + position.longitude.toString());
-
+            updateInfoBox();
         };
 
         //// If the input came from an EditorFor, initialize editing-related events.
