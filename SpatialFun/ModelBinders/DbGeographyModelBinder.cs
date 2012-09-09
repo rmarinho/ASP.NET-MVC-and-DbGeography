@@ -12,10 +12,19 @@ namespace MvcApplication2
         public override object BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
         {
             var valueProviderResult = bindingContext.ValueProvider.GetValue(bindingContext.ModelName);
-            if (valueProviderResult != null)
+            if (valueProviderResult != null && !string.IsNullOrWhiteSpace(valueProviderResult.AttemptedValue))
             {
-                DbGeography result = DbGeography.FromText(valueProviderResult.AttemptedValue, 4326);
-                return result;
+                try
+                {
+                    DbGeography result = DbGeography.FromText(valueProviderResult.AttemptedValue);
+                    return result;
+                }
+                catch (Exception)
+                {
+                    return null; 
+                    throw;
+                }
+              
             } 
             return null;
         }
