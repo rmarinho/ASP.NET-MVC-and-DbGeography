@@ -3,6 +3,11 @@ bin
 obj
 packages
 _ReSharper.SpatialFun
+SpatialFun\App_Data
+
+*.sln
+*.suo
+*.csproj
 
 # mstest test results
 TestResults
