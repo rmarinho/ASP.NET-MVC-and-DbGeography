@@ -136,19 +136,30 @@
             $input.val(WKTModule.Write(pushpin));
             updateInfoBox();
         };
+        
+        var updateMarkerFromWkt = function (updateEvent) {
+            position = WKTModule.Read(updateEvent);
+            if (position != null) {
+                pushpin.setLocation(position.getLocation());
+                map.entities.push(pushpin);
+                //  // This new location might be outside the current viewport, especially
+                //  //  if it was manually entered. Pan to center on the new marker location.
+                map.setView({ center: position, zoom: defaultZoomlevel });
+                updateInfoBox();
+            }
+        };
 
         //// If the input came from an EditorFor, initialize editing-related events.
         if ($input.hasClass('editor-for-dbgeography')) {
 
             //Make the pushpin draggable
             pushpin.setOptions({ draggable: true });
-
             //Add the drag event end
             Microsoft.Maps.Events.addHandler(pushpin, 'dragend', endDragDetails);
             //  Attempt to react to user edits in the input field.
             $input.on('change', function() {
-                var latLong = parseLatLong(this.value);
-                updateMarker(latLong);
+                //var latLong = parseLatLong(this.value);
+                updateMarkerFromWkt(this.value);
             });
         }
 
