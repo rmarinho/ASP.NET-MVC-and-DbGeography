@@ -14,10 +14,7 @@ namespace MvcApplication2
             var valueProviderResult = bindingContext.ValueProvider.GetValue(bindingContext.ModelName);
             if (valueProviderResult != null)
             {
-                string[] latLongStr = valueProviderResult.AttemptedValue.Split(',');
-                string point = string.Format("POINT ({0} {1})", latLongStr[1], latLongStr[0]);
-                //4326 format puts LONGITUDE first then LATITUDE
-                DbGeography result = DbGeography.FromText(point, 4326);
+                DbGeography result = DbGeography.FromText(valueProviderResult.AttemptedValue, 4326);
                 return result;
             } 
             return null;

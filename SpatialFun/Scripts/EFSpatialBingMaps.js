@@ -46,7 +46,7 @@
 
         var endDragDetails = function(e) {
             position = e.entity.getLocation();
-            $input.val(position.latitude.toString() + "," + position.longitude.toString());
+            $input.val(WKTModule.Write(e.entity));
             updateInfoBox();
         };
 
@@ -93,7 +93,7 @@
         //Initialize the map widget.
         //use your own credentials please
         var map = Microsoft.Maps.loadModule('Microsoft.Maps.Themes.BingTheme', {
-            callback: function() {
+            callback: function () {
                 map = new Microsoft.Maps.Map($map[0], {
                     credentials: 'AqTvhJT1tKQjRwvP742mqvrE1cyVUlP-0TGW9iiS74d_GDkiEKxFwWC0cGlQnryr',
                     theme: new Microsoft.Maps.Themes.BingTheme(),
@@ -101,19 +101,23 @@
                     zoom: defaultZoomlevel
                 });
 
+                //load WKT Module
+                Microsoft.Maps.registerModule("WKTModule", "/scripts/WKTModule.js");
+                Microsoft.Maps.loadModule("WKTModule", {
+                    callback: function() {
+                        //if we opt in
+                        if (useCurrentLocation) {
+                            //get currentlocation
+                            var geoLocationProvider = new Microsoft.Maps.GeoLocationProvider(map);
+                            //on sucess update the marker position
+                            geoLocationProvider.getCurrentPosition(({ successCallback: function(object) { updateMarker(object.center); } }));
+                        } else {
+                            updateMarker(position);
 
-                //if we opt in
-                if (useCurrentLocation) {
-                    //get currentlocation
-                    var geoLocationProvider = new Microsoft.Maps.GeoLocationProvider(map);
-                    //on sucess update the marker position
-                    geoLocationProvider.getCurrentPosition(({ successCallback: function(object) { updateMarker(object.center); } }));
-                } else {
-                    updateMarker(position);
-
-                }
-                map.entities.push(defaultInfobox);
-
+                        }
+                        map.entities.push(defaultInfobox);
+                    }
+                });
             }
         });
         var initSearchManager = function() {
@@ -122,7 +126,6 @@
             reverseGeocodeRequest();
         };
 
-      
         var updateMarker = function(updateEvent) {
             position = new Microsoft.Maps.Location(updateEvent.latitude, updateEvent.longitude);
             pushpin.setLocation(position);
@@ -130,7 +133,7 @@
             //  // This new location might be outside the current viewport, especially
             //  //  if it was manually entered. Pan to center on the new marker location.
             map.setView({ center: position, zoom: defaultZoomlevel });
-            $input.val(position.latitude.toString() + "," + position.longitude.toString());
+            $input.val(WKTModule.Write(pushpin));
             updateInfoBox();
         };
 
@@ -163,6 +166,7 @@
             longitude: latLong[1]
         };
     };
+    
 
     // Find all DBGeography inputs and initialize maps for them.
     $('.editor-for-dbgeography, .display-for-dbgeography').each(initialize);
